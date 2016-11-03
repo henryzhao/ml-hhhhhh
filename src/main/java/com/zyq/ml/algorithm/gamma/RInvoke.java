@@ -45,6 +45,13 @@ public class RInvoke {
 		return resultDoubles;
 	}
 	
+	public double[] arimaResult() throws RserveException {
+		rexp = (REXPGenericVector) rc.eval("summary(fcast)");
+		object = (REXPDouble) rexp.asList().firstElement();
+		double[] resultDoubles = object.asDoubles();
+		return resultDoubles;
+	}
+	
 	public double ksTest(double[] testSet,double[] trainSet) throws REXPMismatchException, REngineException{
 		rc.assign("set", testSet);
 		// 验证是否是gamma分布
@@ -71,6 +78,17 @@ public class RInvoke {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * R语言实现Arima函数
+	 * author：Henry
+	 * date：2016-10-28
+	 */
+	public double[] arimaForecast(){
+		double[] resultData=null;
+		
+		return resultData;
 	}
 	
 	/**
