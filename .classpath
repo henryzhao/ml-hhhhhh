@@ -23,8 +23,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="src/main/libs/Jama-1.0.2.jar"/>
-	<classpathentry kind="lib" path="src/main/libs/REngine-1.7-3.jar"/>
-	<classpathentry kind="lib" path="src/main/libs/Rserve-1.7-3.jar"/>
+	<classpathentry kind="lib" path="/Users/zhaoyuqi/Downloads/software/java/Arima/java类库 (1)/java类库/Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/zhaoyuqi/Downloads/REngine.jar"/>
+	<classpathentry kind="lib" path="/Users/zhaoyuqi/Downloads/RserveEngine.jar"/>
+	<classpathentry kind="lib" path="/Users/zhaoyuqi/Downloads/software/java/lombok.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

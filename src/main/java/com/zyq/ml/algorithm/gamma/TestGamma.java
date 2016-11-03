@@ -1,16 +1,20 @@
 package com.zyq.ml.algorithm.gamma;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
+import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPGenericVector;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RserveException;
 
-import com.zyq.ml.algorithm.arima.ARIMA;
+import com.zyq.ml.algorithm.arima1.ARIMA;
 import com.zyq.ml.data.Properties;
 import com.zyq.ml.data.QoSDataSetReader;
 import com.zyq.ml.entity.QosDataSet;
@@ -102,20 +106,30 @@ public class TestGamma {
 				
 				ARIMA arima=new ARIMA(train);
 				//int []model= arima.getARIMAmodel1();
+				int []model= arima.getARIMAmodel();
 				
 				switch(caseNum){
 				case 0:
-					preResult[k]= before(train);
-					name ="before：";
+					preResult[k]= mid(train);
+					name ="Average：";
 					break;
 				case 1:
-					preResult[k]= 0.0;
-					//arima.aftDeal(arima.predictValue(model[0],model[1])); 
-					name ="arima：";
+					preResult[k]= before(train);
+					name ="Before：";
 					break;
 				case 2:
+					preResult[k]= trainArima(train);
+					//arima.aftDeal(arima.predictValueDouble(model[0],model[1]));;
+					//arima.aftDeal(arima.predictValue(model[0],model[1])); 
+					name ="Arima：";
+					break;
+				case 3:
 					preResult[k]= trainGamma(train);
-					name ="gamma：";
+					name ="Gamma：";
+					break;
+				case 4:
+					preResult[k]= 0.0;
+					name ="Arima+Gamma：";
 					break;
 				default:
 					break;
@@ -130,22 +144,28 @@ public class TestGamma {
 		}
 		
 		try {
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", name);
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+			System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
+//			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", df.format(new Date())+"\r\n");
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", filename+" "+ per +"%\r\n");
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", name+"\r\n");
 			String preData = "";
 			String allData = "";
 			for(int i=0;i<dataOfAll.length;i++){
 				if(dataOfAll[i]==0.0)continue;
-				preData+=preResult[i]+"\t";
-				allData+=dataOfAll[i]+"\t";
+				preData+=preResult[i]+",";
+				allData+=dataOfAll[i]+",";
 			}
+			
 			preData+="\r\n";
 			allData+="\r\n";
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", preData);
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", allData);
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt","RMSE:"+rInvoke.callRScriptRMSE(preResult, dataOfAll)+"\r\n");
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt","MAE:"+rInvoke.callRScriptMAE(preResult, dataOfAll)+"\r\n\r\n\r\n");
-			
+//			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", preData);
+//			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", allData);
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt","RMSE:"+rInvoke.callRScriptRMSE(preResult, dataOfAll)+"\r\n");
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt","MAE:"+rInvoke.callRScriptMAE(preResult, dataOfAll)+"\r\n\r\n\r\n");
 			System.out.println("\n"+name);
+//			System.out.println("preData:"+preData);
+//			System.out.println("oriData:"+allData);
 			System.out.println("RMSE:"+rInvoke.callRScriptRMSE(preResult, dataOfAll));
 			System.out.println("MAE:"+rInvoke.callRScriptMAE(preResult, dataOfAll));
 			
@@ -184,12 +204,34 @@ public class TestGamma {
 			
 			return rInvoke.ksTest(resultDoubles, train);
 		} catch (REngineException e) {
-			System.out.println("R PARA ERROR");
+			//System.out.println("R PARA ERROR");
 		} catch (REXPMismatchException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
+	}
+	/*
+	 *  forecast arima in R
+	 */
+	private double trainArima(double train[]) {
+		double[] resultDouble=null;
+		double tmp=0;
+		try {
+			rInvoke.eval("library(forecast);");
+			rInvoke.assign("arimaData", train);
+			rInvoke.eval("arimaDatats<-ts(arimaData);");
+			rInvoke.eval("arima1<-auto.arima(arimaDatats);");
+			rInvoke.eval("fcast<-forecast(arima1);");
+			resultDouble = rInvoke.arimaResult();
+			for (int i = 0; i < resultDouble.length; i++) {
+				tmp +=resultDouble[i];
+			}
+		} catch (REngineException e) {
+			// TODO: handle exception
+			System.out.println("R PARA ERROR");
+		}
+		return tmp/resultDouble.length;
 	}
 	
 	class SortByResp implements Comparator<Object> {
@@ -203,13 +245,17 @@ public class TestGamma {
 	
 	public static void main(String[] args) {
 		TestGamma testGamma = new TestGamma();
-		String SetName = "StockQuotes1";
-		for(int j=1;j<=3;j++){
-			FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", SetName+" "+10*j+"%\r\n");
-			for(int i=0;i<3;i++){
-				testGamma.runSingleSet(10*j,3,SetName,i);
-				
+		String [] setNameStrings={"Amazon1","BLiquidity1","CurrencyConverter1","FastWeather1","GetJoke1","Google1","HyperlinkExtractor1","QuoteOfTheDay1","StockQuotes1","XMLDailyFact1"};
+		for (int k = 0; k < setNameStrings.length; k++) {
+			for(int j=1;j<=3;j++){
+				FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", setNameStrings[k]+" "+10*j+"%\r\n");
+				for(int i=0;i<4;i++){
+					testGamma.runSingleSet(10*j,3,setNameStrings[k],i);
+					
+				}
 			}
 		}
+//		String SetName = "Amazon1";
+		
 	}
 }
