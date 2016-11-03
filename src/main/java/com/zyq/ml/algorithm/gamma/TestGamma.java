@@ -47,9 +47,7 @@ public class TestGamma {
 	}
 	
 	public void run(int per,int num){
-		System.out.println("=====================================");
 		for (String s : fileList.list()) {
-			
 			runSingleSet(per, num, s,1);
 			
 		}
@@ -104,9 +102,9 @@ public class TestGamma {
 				
 				if(train.length<300)continue;
 				
-				ARIMA arima=new ARIMA(train);
+				//ARIMA arima=new ARIMA(train);
 				//int []model= arima.getARIMAmodel1();
-				int []model= arima.getARIMAmodel();
+				//int []model= arima.getARIMAmodel();
 				
 				switch(caseNum){
 				case 0:
@@ -128,8 +126,13 @@ public class TestGamma {
 					name ="Gamma：";
 					break;
 				case 4:
-					preResult[k]= 0.0;
+					preResult[k] = trainArimaGamma(train);
 					name ="Arima+Gamma：";
+					break;
+					
+				case 5:
+					preResult[k] = trainArimaGarch(train);
+					name ="Arima+Garch：";
 					break;
 				default:
 					break;
@@ -174,6 +177,40 @@ public class TestGamma {
 		}
 	}
 	
+	private double trainArimaGarch(double[] train) {
+		try {
+			rInvoke.assign("dat", train);
+			rInvoke.assign("n", train.length+"");
+			rInvoke.eval("library(tseries)");
+			rInvoke.eval("library(fGarch)");
+			rInvoke.eval("library(FinTS)");
+			rInvoke.eval("fit=lm(dat~-1+time(dat))");
+			rInvoke.eval("fit=lm(dat~-1+time(dat))");
+			
+			
+			
+		} catch (REngineException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private double trainArimaGamma(double[] train) {
+		double forecastVal = trainArima(train);
+		double chooseVal = trainGamma(train);
+		double gap = Math.abs(forecastVal-chooseVal);
+		
+		for(int i=0;i<9;i++){
+			double newCalc = trainGamma(train);
+			double newGap = Math.abs(forecastVal-newCalc);
+			if(newGap<gap){
+				gap = newGap;
+				chooseVal = newCalc;
+			}
+		}
+		return chooseVal;
+	}
+
 	private double mid(double train[]){
 		double total=0.0;
 		for(double d:train){
@@ -184,7 +221,6 @@ public class TestGamma {
 	}
 	
 	private double before(double train[]){
-		
 		return train[train.length-1];
 	}
 	
@@ -199,14 +235,10 @@ public class TestGamma {
 			source = source.replaceAll("\\\\", "/");
 			
 			rInvoke.eval(source);
-			
 			double[] resultDoubles = rInvoke.optimResult();
-			
 			return rInvoke.ksTest(resultDoubles, train);
 		} catch (REngineException e) {
-			//System.out.println("R PARA ERROR");
 		} catch (REXPMismatchException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
@@ -249,13 +281,12 @@ public class TestGamma {
 		for (int k = 0; k < setNameStrings.length; k++) {
 			for(int j=1;j<=3;j++){
 				FileUtils.writeFile(Properties.TEMP_ROOT+"reault.txt", setNameStrings[k]+" "+10*j+"%\r\n");
-				for(int i=0;i<4;i++){
+				for(int i=0;i<5;i++){
 					testGamma.runSingleSet(10*j,3,setNameStrings[k],i);
 					
 				}
 			}
 		}
-//		String SetName = "Amazon1";
 		
 	}
 }

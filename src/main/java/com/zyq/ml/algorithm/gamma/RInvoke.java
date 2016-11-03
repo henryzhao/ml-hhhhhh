@@ -52,6 +52,33 @@ public class RInvoke {
 		return resultDoubles;
 	}
 	
+	public double[] arimaGarchResult() throws RserveException {
+		rexp = (REXPGenericVector) rc.eval("pacf(r^2)");
+		object = (REXPDouble) rexp.asList().firstElement();
+		//TODO:
+		
+		rexp = (REXPGenericVector) rc.eval("acf(r^2)");
+		object = (REXPDouble) rexp.asList().firstElement();
+		//TODO:
+		
+		rexp = (REXPGenericVector) rc.eval("acf(r)");
+		object = (REXPDouble) rexp.asList().firstElement();
+		//TODO:
+		
+		rexp = (REXPGenericVector) rc.eval("fit1=garchFit(~arma(2,0)+garch(1,1), data=r, algorithm=\"nlminb+nm\",trace=F, include.mean=F)");
+		object = (REXPDouble) rexp.asList().firstElement();
+		//TODO:
+		
+		rexp = (REXPGenericVector) rc.eval("m1=arima(prop, order = c(2,0,0))");
+		object = (REXPDouble) rexp.asList().firstElement();
+		//TODO:
+		
+		
+		double[] resultDoubles = object.asDoubles();
+		return resultDoubles;
+	}
+	
+	
 	public double ksTest(double[] testSet,double[] trainSet) throws REXPMismatchException, REngineException{
 		rc.assign("set", testSet);
 		// 验证是否是gamma分布

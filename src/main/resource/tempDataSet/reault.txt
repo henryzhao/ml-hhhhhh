@@ -1752,3 +1752,14 @@ Amazon1 10%
 Amazon1 10%
 Amazon1 10%
 Amazon1 20%
+Amazon1 10%
+Amazon1 20%
+Amazon1 10%
+Amazon1 10%
+Amazon1 20%
+Amazon1 30%
+BLiquidity1 10%
+BLiquidity1 20%
+BLiquidity1 30%
+CurrencyConverter1 10%
+CurrencyConverter1 20%
