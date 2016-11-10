@@ -99,6 +99,7 @@ public class TestGamma {
 				for(double d:trainSet){
 					train[j++] = d;
 				}
+				FileUtils.writeFile(Properties.TEMP_ROOT+"real.txt", train.toString());
 				
 				if(train.length<300)continue;
 				
@@ -116,7 +117,7 @@ public class TestGamma {
 					name ="Before：";
 					break;
 				case 2:
-					preResult[k]= trainArima(train);
+				//	preResult[k]= trainArima(train);
 					//arima.aftDeal(arima.predictValueDouble(model[0],model[1]));;
 					//arima.aftDeal(arima.predictValue(model[0],model[1])); 
 					name ="Arima：";
@@ -126,7 +127,7 @@ public class TestGamma {
 					name ="Gamma：";
 					break;
 				case 4:
-					preResult[k] = trainArimaGamma(train);
+					//preResult[k] = trainArimaGamma(train);
 					name ="Arima+Gamma：";
 					break;
 					
@@ -162,12 +163,12 @@ public class TestGamma {
 			
 			preData+="\r\n";
 			allData+="\r\n";
-//			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", preData);
-//			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", allData);
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", preData);
+			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt", allData);
 			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt","RMSE:"+rInvoke.callRScriptRMSE(preResult, dataOfAll)+"\r\n");
 			FileUtils.writeFile(Properties.TEMP_ROOT+"result.txt","MAE:"+rInvoke.callRScriptMAE(preResult, dataOfAll)+"\r\n\r\n\r\n");
 			System.out.println("\n"+name);
-//			System.out.println("preData:"+preData);
+			System.out.println("preData:"+preData);
 //			System.out.println("oriData:"+allData);
 			System.out.println("RMSE:"+rInvoke.callRScriptRMSE(preResult, dataOfAll));
 			System.out.println("MAE:"+rInvoke.callRScriptMAE(preResult, dataOfAll));

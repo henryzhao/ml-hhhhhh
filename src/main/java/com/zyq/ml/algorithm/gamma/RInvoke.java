@@ -127,7 +127,7 @@ public class RInvoke {
 			throws REXPMismatchException, REngineException {
 		rc.assign("y", preResult);
 		rc.assign("ry", dataOfAll);
-		REXP rexp = rc.eval("sqrt(sum((y-ry)^ 2))/length(ry)");
+		REXP rexp = rc.eval("sqrt(sum((y-ry)^2))/length(ry)");
 		return rexp.asDouble();
 	}
 

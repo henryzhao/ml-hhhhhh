@@ -116,7 +116,7 @@ public class RScript {
 		REXPDouble objectTest = (REXPDouble) rexpTest.asList().elementAt(1);
 		double Test = objectTest.asDouble();
 		if (isGamma(Test)) {
-			REXPDouble rexp1 = (REXPDouble) rc.eval("mean(rgamma(10,result[1],result[2]))");
+			REXPDouble rexp1 = (REXPDouble) rc.eval("mean(rgamma(1,result[1],result[2]))");
 			System.out.println("预测结果为：" + rexp1.asDouble());
 			return rexp1.asDouble();
 		} else {
